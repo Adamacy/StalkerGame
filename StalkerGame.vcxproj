@@ -21,6 +21,13 @@
   <ItemGroup>
     <ClCompile Include="Source\main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Include\Player.h" />
+    <ClInclude Include="Include\Stalker.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\knight.png" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -107,7 +114,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)External\SFML-2.6.2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)External\SFML-2.6.2\include;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -125,7 +132,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)External\SFML-2.6.2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)External\SFML-2.6.2\include;$(ProjectDir)Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
