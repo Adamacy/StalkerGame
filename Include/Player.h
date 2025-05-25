@@ -1,7 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-class Player : public sf::Sprite
-{
+class Player : public sf::Sprite {
 public:
 
     
@@ -66,14 +65,20 @@ public:
                 score++;
                 std::cout << "Score: " + std::to_string(score) << "\n";
                 text.setString("Score: " + std::to_string(score));
-
-                it = apples.erase(it); //  Safely erase and advance iterator
+                it = apples.erase(it);
+                
             }
             else {
-                ++it; //  Only increment if not erasing
+                ++it;
             }
         }
     }
+    bool resolveCollisionWithStalker(const sf::Sprite& stalker) {
+        sf::FloatRect player_bounds = getGlobalBounds();
+        if (player_bounds.intersects(stalker.getGlobalBounds())) {
+            return 1;
+        };
+    };
     void moveInDirection(const sf::Time& elapsed, const std::vector<sf::Sprite>& obstacles)
     {
 
@@ -94,8 +99,6 @@ public:
     }
 private:
     int score = 0;
-    int m_speed_x = 200;
-    int m_speed_y = 200;
     int bound_top = 0;
     int bound_bottom = 0;
     int bound_left = 0;
