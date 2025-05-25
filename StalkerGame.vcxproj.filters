@@ -1,6 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Source\main.cpp" />
+    <Filter Include="Include">
+      <UniqueIdentifier>{b9c376c8-ade0-495c-a1b4-5cf8f5634ed1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{ade77006-3dcd-4531-be14-511bbf8f7be5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{8a041ecb-5705-4466-a52c-ad7491461129}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Include\Player.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Stalker.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\knight.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
 </Project>
