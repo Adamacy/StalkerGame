@@ -15,8 +15,8 @@ public:
 
     bool Collision_T(sf::FloatRect wall_bounds, sf::FloatRect guy_bounds)
     {
-        if ((guy_bounds.top + guy_bounds.height >= wall_bounds.top - 6) && (guy_bounds.top < wall_bounds.top)
-            && (guy_bounds.left + guy_bounds.width > wall_bounds.left + 6) && (guy_bounds.left < wall_bounds.left + wall_bounds.width - 6))
+        if ((guy_bounds.top + guy_bounds.height >= wall_bounds.top - 1) && (guy_bounds.top < wall_bounds.top)
+            && (guy_bounds.left + guy_bounds.width > wall_bounds.left + 3) && (guy_bounds.left < wall_bounds.left + wall_bounds.width - 3))
         {
             return 1;
         }
@@ -25,8 +25,8 @@ public:
     }
     bool Collision_L(sf::FloatRect wall_bounds, sf::FloatRect guy_bounds)
     {
-        if ((guy_bounds.left + guy_bounds.width >= wall_bounds.left - 6) && (guy_bounds.left < wall_bounds.left)
-            && (guy_bounds.top + guy_bounds.height > wall_bounds.top + 6) && (guy_bounds.top < wall_bounds.top + wall_bounds.height - 6))
+        if ((guy_bounds.left + guy_bounds.width >= wall_bounds.left - 1) && (guy_bounds.left < wall_bounds.left)
+            && (guy_bounds.top + guy_bounds.height > wall_bounds.top + 3) && (guy_bounds.top < wall_bounds.top + wall_bounds.height - 3))
         {
             return 1;
         }
@@ -34,7 +34,7 @@ public:
     }
     bool Collision_B(sf::FloatRect wall_bounds, sf::FloatRect guy_bounds)
     {
-        if ((guy_bounds.top + guy_bounds.height >= wall_bounds.top + 3) && (guy_bounds.top < wall_bounds.top + wall_bounds.height)
+        if ((guy_bounds.top + guy_bounds.height >= wall_bounds.top + 1) && (guy_bounds.top < wall_bounds.top + wall_bounds.height)
             && (guy_bounds.left + guy_bounds.width > wall_bounds.left + 3) && (guy_bounds.left < wall_bounds.left + wall_bounds.width - 3))
         {
             return 1;
@@ -43,41 +43,74 @@ public:
     }
     bool Collision_R(sf::FloatRect wall_bounds, sf::FloatRect guy_bounds)
     {
-        if ((guy_bounds.left + guy_bounds.width >= wall_bounds.left + 6) && (guy_bounds.left < wall_bounds.left + wall_bounds.width)
-            && (guy_bounds.top + guy_bounds.height > wall_bounds.top + 6) && (guy_bounds.top < wall_bounds.top + wall_bounds.height - 6))
+        if ((guy_bounds.left + guy_bounds.width >= wall_bounds.left + 1) && (guy_bounds.left < wall_bounds.left + wall_bounds.width)
+            && (guy_bounds.top + guy_bounds.height > wall_bounds.top + 3) && (guy_bounds.top < wall_bounds.top + wall_bounds.height - 6))
         {
             return 1;
         }
         else { return 0; }
     }
+    void resolveCollisionWithWalls(const std::vector<sf::Sprite>& obstacles, float move_x, float move_y)
+    {
+        // --- Move X
+        move(move_x, 0);
+        for (const auto& wall : obstacles)
+        {
+            if (getGlobalBounds().intersects(wall.getGlobalBounds()))
+            {
+                auto playerBounds = getGlobalBounds();
+                auto wallBounds = wall.getGlobalBounds();
+
+                if (move_x > 0) // moving right
+                {
+                    float overlap = (playerBounds.left + playerBounds.width) - wallBounds.left;
+                    move(-overlap, 0);
+                }
+                else if (move_x < 0) // moving left
+                {
+                    float overlap = (wallBounds.left + wallBounds.width) - playerBounds.left;
+                    move(overlap, 0);
+                }
+            }
+        }
+
+        // --- Move Y
+        move(0, move_y);
+        for (const auto& wall : obstacles)
+        {
+            if (getGlobalBounds().intersects(wall.getGlobalBounds()))
+            {
+                auto playerBounds = getGlobalBounds();
+                auto wallBounds = wall.getGlobalBounds();
+
+                if (move_y > 0) // moving down
+                {
+                    float overlap = (playerBounds.top + playerBounds.height) - wallBounds.top;
+                    move(0, -overlap);
+                }
+                else if (move_y < 0) // moving up
+                {
+                    float overlap = (wallBounds.top + wallBounds.height) - playerBounds.top;
+                    move(0, overlap);
+                }
+            }
+        }
+    }
+
     void moveInDirection(const sf::Time& elapsed, const std::vector<sf::Sprite>& obstacles)
     {
 
-        bool top = 0, left = 0, bottom = 0, right = 0;
-        for (auto& obstacle : obstacles)
-        {
-            sf::FloatRect guy_bounds = getGlobalBounds();
-            sf::FloatRect wall_bounds = obstacle.getGlobalBounds();
-            if (Collision_T(wall_bounds, guy_bounds) == 1) { top = 1; }
-            if (Collision_L(wall_bounds, guy_bounds) == 1) { left = 1; }
-            if (Collision_B(wall_bounds, guy_bounds) == 1) { bottom = 1; }
-            if (Collision_R(wall_bounds, guy_bounds) == 1) { right = 1; }
-        }
+        float dt = elapsed.asSeconds();
 
+        float move_x = 0.f;
+        float move_y = 0.f;
 
-        sf::FloatRect rectangle_bounds = getGlobalBounds();
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && bottom != 1) {
-            move(0, -std::abs(vertical_speed_ * elapsed.asSeconds()));
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && top != 1) {
-            move(0, std::abs(vertical_speed_ * elapsed.asSeconds()));
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && right != 1) {
-            move(-std::abs(horizontal_speed_ * elapsed.asSeconds()), 0);
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && left != 1) {
-            move(std::abs(horizontal_speed_ * elapsed.asSeconds()), 0);
-        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) move_y -= vertical_speed_ * dt;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) move_y += vertical_speed_ * dt;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) move_x -= horizontal_speed_ * dt;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) move_x += horizontal_speed_ * dt;
+
+        resolveCollisionWithWalls(obstacles, move_x, move_y);
     }
 
 
