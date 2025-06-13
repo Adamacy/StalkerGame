@@ -2,16 +2,30 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include "Player.h"
+#include "Stalker.h"
 
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 600;
-const int GRID_COLS = 7;
-const int GRID_ROWS = 5;
+const int WINDOW_WIDTH = 1920;
+const int WINDOW_HEIGHT = 1080;
+const int GRID_COLS = 12;
+const int GRID_ROWS = 8;
 const float WALL_THICKNESS = 20.f;
-const float WALL_LENGTH = 100.f;
-const int NUM_APPLES = 1;
-
+const float WALL_LENGTH = 90.f;
+const int NUM_APPLES = 20;
+bool gameOver = false;
+bool gameWon = false;
 std::vector<std::pair<int, int>> occupiedCells;
+
+std::pair<int, int> getFreeCell() {
+	while (true) {
+		int row = rand() % GRID_ROWS;
+		int col = rand() % GRID_COLS;
+		std::pair<int, int> cell = std::make_pair(row, col);
+		if (std::find(occupiedCells.begin(), occupiedCells.end(), cell) == occupiedCells.end()) {
+			occupiedCells.push_back(cell);
+			return cell;
+		}
+	}
+}
 
 //Random wall generating
 sf::Sprite createWall(float x, float y, float horizontal) {
@@ -52,6 +66,11 @@ int main() {
 	wall_tex.setRepeated(true);
 	sf::Font font;
 	if (!font.loadFromFile("Assets/roboto.ttf")) {
+		std::cout << "Couldn't laod font!";
+		return -1;
+	}
+	sf::Texture stalker_tex;
+	if (!stalker_tex.loadFromFile("Assets/stalker.png")) {
 		std::cout << "Couldn't laod font!";
 		return -1;
 	}
@@ -113,10 +132,10 @@ int main() {
 		apples.push_back(appleSprite);
 		occupiedCells.emplace_back(row, col);
 	}
+
 	sf::Clock clock;
 	Player player;
-	
-	
+	Stalker stalker;
 
 	sf::Sprite border_top;
 	border_top.setTexture(wall_tex);
@@ -143,11 +162,23 @@ int main() {
 	walls.emplace_back(border_left);
 	walls.emplace_back(border_right);
 
+	//Player
+	auto playerCell = getFreeCell();
+	float playerX = playerCell.second * cellWidth + cellWidth / 2;
+	float playerY = playerCell.first * cellHeight + cellHeight / 2;
 	player.setTexture(knight_tex);
-	player.setPosition(200, 200);
+	player.setPosition(playerX - knight_tex.getSize().x / 2, playerY - knight_tex.getSize().y / 2);
 	player.setScale(1, 1);
 	player.setBounds(0, window.getSize().x, 0, window.getSize().y);
 
+	//Stalker
+	auto stalkerCell = getFreeCell();
+	float stalkerX = stalkerCell.second * cellWidth + cellWidth / 2;
+	float stalkerY = stalkerCell.first * cellHeight + cellHeight / 2;
+	stalker.setTexture(stalker_tex);
+	stalker.setPosition(stalkerX - stalker_tex.getSize().x / 2, stalkerY - stalker_tex.getSize().y / 2);
+	stalker.setScale(1.3, 1.3);
+	stalker.setBounds(0, window.getSize().x, 0, window.getSize().y);
 
 	sf::Event event;
 	while (window.isOpen()) {
@@ -158,25 +189,44 @@ int main() {
 				window.close();
 			}
 		}
-
 		window.clear(sf::Color::Black);
-		player.moveInDirection(elapsed, walls);
-		window.draw(player);
-		player.resolveCollisionWithApple(apples, text);
-		if (player.get_score() == NUM_APPLES) {
-			sf::Text finish;
-			finish.setFont(font);
-			finish.setString("You won!");
-			finish.setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+		if (!gameOver) {
+			player.moveInDirection(elapsed, walls);
+			player.resolveCollisionWithApple(apples, text);
+			stalker.followPlayer(player, walls, elapsed);
+			if (player.get_score() == NUM_APPLES) {
+				gameWon = true;
+				gameOver = true;
+			}
+			else if (player.resolveCollisionWithStalker(stalker)) {
+				gameOver = true;
+				gameWon = false;
+			}
+
+			for (auto& wall : walls) {
+				wall.setTexture(wall_tex);
+				window.draw(wall);
+			}
+			for (auto& apple : apples) {
+				window.draw(apple);
+			}
+			window.draw(text);
+			window.draw(player);
+			window.draw(stalker);
+			
 		}
-		for (auto& wall : walls) {
-			wall.setTexture(wall_tex);
-			window.draw(wall);
+		else {
+
+				sf::Text finish;
+				finish.setFont(font);
+				finish.setString(gameWon ? "You won!" : "You lost!");
+				finish.setPosition((WINDOW_WIDTH / 2) - 60, (WINDOW_HEIGHT / 2) - 50);
+				window.draw(finish);
+				
+			
 		}
-		for (auto& apple : apples) {
-			window.draw(apple);
-		}
-		window.draw(text);
+		
+		
 		window.display();
 	}
 	return 0;
