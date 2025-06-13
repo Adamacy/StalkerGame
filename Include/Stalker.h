@@ -21,20 +21,16 @@ public:
         sf::Vector2f currentPos = getPosition();
         sf::Vector2f newPos = currentPos + movement;
 
-        // Proposed bounds at new position
         sf::FloatRect stalkerBounds = getGlobalBounds();
         stalkerBounds.left = newPos.x;
         stalkerBounds.top = newPos.y;
 
-        // Check collisions with walls
         for (const auto& wall : walls) {
             if (stalkerBounds.intersects(wall.getGlobalBounds())) {
-                // Collision detected, do not move
+
                 return;
             }
         }
-
-        // No collision, move stalker
         move(movement);
     }
 
